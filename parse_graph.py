@@ -13,9 +13,5 @@ else:
     data_filename = 'ln.json'
     tx_amts = [100, 10000, 1000000]
 
-g = nx.read_gml(data_path+"graph"+str(tx_amts[0])+".gml")
-k2n = scripts.read_json(data_path+"key_to_node_map.json")
-n2k = scripts.read_json(data_path+"node_to_key_map.json")
-print(g.edges(data=True))
-print(k2n)
-print(n2k)
+scripts.convert_json_to_graph(data_path, data_filename, tx_amts)
+
