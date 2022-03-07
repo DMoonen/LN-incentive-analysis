@@ -1,5 +1,6 @@
 import networkx as nx
 import json
+import matplotlib.pyplot as plt
 
 
 def read_json(file_path):
@@ -13,6 +14,45 @@ def write_json(data, file_path):
     fl = open(file_path, "w")
     json.dump(data, fl)
     fl.close()
+
+
+def add_edge(graph, node1, node2, weight):
+    graph.add_edge(node1, node2, weight=weight)
+    return graph
+
+
+def init_reward_list(graph):
+    # Initialize a reward list
+    rewards = {}
+    for node in graph.nodes():
+        rewards[node] = []
+    return rewards
+
+
+def calc_node_profit(graph, prev_rewards):
+    for node in graph.nodes():
+        prev_rewards[node].append(0)
+
+    between_cent = nx.edge_betweenness_centrality(graph, normalized=False, weight='weight')
+    for edge in graph.edges(data=True):
+        weight = edge[2]['weight']
+        freq_key = (edge[0], edge[1])
+        prev_rewards[edge[0]][-1] += between_cent[freq_key] * weight
+
+    return prev_rewards
+
+
+def plot_rewards_graph(rewards, node_list):
+    #  xaxis is interval [1, #iterations]
+    xaxis = range(1, len(rewards[list(node_list)[0]])+1)
+    for node in node_list:
+        plt.plot(xaxis, rewards[node], label="Node %s" % node)
+    plt.xticks(xaxis)
+    plt.xlabel('Time (# Iteration)')
+    plt.ylabel('Reward (#Satishi\'s)')
+    plt.title('Node rewards over time.')
+    plt.legend()
+    plt.show()
 
 
 def convert_json_to_graph(data_path, data_filename, tx_amts):
@@ -37,17 +77,24 @@ def convert_json_to_graph(data_path, data_filename, tx_amts):
     # Parse graph
     for tx_amt in tx_amts:
         print("Starting graph parsing:", tx_amt)
-        graph = nx.Graph()
+        graph = nx.DiGraph()
         graph.add_nodes_from(node_ids)
 
         # Convert edges from JSON
         for e in data['edges']:
             u = e['node1_pub']
             v = e['node2_pub']
-            node_pol = e['node1_policy']
-            if u in key_to_node and v in key_to_node and node_pol is not None:
-                fee = int(node_pol['fee_base_msat']) + int(node_pol['fee_rate_milli_msat']) * tx_amt * 0.001
+            node_pol1 = e['node1_policy']
+            node_pol2 = e['node2_policy']
+
+            # Make 2 directional edges based on the 2 node policies
+            if u in key_to_node and v in key_to_node and node_pol1 is not None:
+                fee = int(node_pol1['fee_base_msat']) + int(node_pol1['fee_rate_milli_msat']) * tx_amt * 0.001
                 graph.add_edge(key_to_node[u],  key_to_node[v], weight=fee)
+
+            if u in key_to_node and v in key_to_node and node_pol2 is not None:
+                fee = int(node_pol2['fee_base_msat']) + int(node_pol2['fee_rate_milli_msat']) * tx_amt * 0.001
+                graph.add_edge(key_to_node[v],  key_to_node[u], weight=fee)
 
         nx.write_gml(graph, data_path+"graph"+str(tx_amt)+".gml")
 
