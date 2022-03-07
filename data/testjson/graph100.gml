@@ -1,4 +1,5 @@
 graph [
+  directed 1
   node [
     id 0
     label "0"
@@ -56,6 +57,11 @@ graph [
   ]
   edge [
     source 1
+    target 0
+    weight 1000.1
+  ]
+  edge [
+    source 1
     target 2
     weight 105.0
   ]
@@ -63,6 +69,11 @@ graph [
     source 1
     target 9
     weight 1500.5
+  ]
+  edge [
+    source 2
+    target 1
+    weight 102.0
   ]
   edge [
     source 2
@@ -81,6 +92,16 @@ graph [
   ]
   edge [
     source 3
+    target 0
+    weight 101.0
+  ]
+  edge [
+    source 3
+    target 2
+    weight 501.0
+  ]
+  edge [
+    source 3
     target 9
     weight 1502.0
   ]
@@ -96,7 +117,42 @@ graph [
   ]
   edge [
     source 5
+    target 1
+    weight 501.0
+  ]
+  edge [
+    source 5
     target 6
     weight 1000.5
+  ]
+  edge [
+    source 6
+    target 5
+    weight 501.0
+  ]
+  edge [
+    source 7
+    target 4
+    weight 501.5
+  ]
+  edge [
+    source 8
+    target 2
+    weight 1002.0
+  ]
+  edge [
+    source 8
+    target 4
+    weight 1000.5
+  ]
+  edge [
+    source 9
+    target 1
+    weight 1501.0
+  ]
+  edge [
+    source 9
+    target 3
+    weight 1001.0
   ]
 ]
