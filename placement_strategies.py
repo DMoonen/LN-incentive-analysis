@@ -10,8 +10,10 @@ def remove_connected_nodes(nodelist, edgelist, node_id):
     new_connections.remove(node_id)  # One is always connected to oneself
     for edge in edgelist:
         # If we find an edge that contains node_id, we remove the other node from new_connections
-        if edge[0] == node_id and edge[1] in new_connections or edge[1] == node_id and edge[0] in new_connections:
+        if edge[0] == node_id and edge[1] in new_connections:
             new_connections.remove(edge[1])
+        elif edge[1] == node_id and edge[0] in new_connections:
+            new_connections.remove(edge[0])
     return new_connections
 
 
