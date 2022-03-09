@@ -21,6 +21,12 @@ def add_edge(graph, node1, node2, weight):
     return graph
 
 
+def add_node(graph):
+    new_node_id = str(len(graph.nodes()))
+    graph.add_node(new_node_id)
+    return graph, new_node_id
+
+
 def init_reward_list(graph):
     # Initialize a reward list
     rewards = {}
