@@ -130,7 +130,7 @@ def betweenness_centrality(graph, node_id, n):
             graph = scripts.remove_edge(graph, node_id, node_candid)
 
         # Create the optimal betweenness centrality edge
-        if opt_node is not -1:
+        if opt_node != -1:
             graph = create_edges(graph, [opt_node], node_id)
 
     return graph
