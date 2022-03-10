@@ -9,7 +9,7 @@ def remove_connected_nodes(nodelist, edgelist, node_id):
     new_connections = list(nodelist)
     new_connections.remove(node_id)  # One is always connected to oneself
     for edge in edgelist:
-        # If we find an edge that contains node_id, we remove the other node from new_connections
+        # If we find an edge that contains node_id, we ensure that the other node is not present in new_connections
         if edge[0] == node_id and edge[1] in new_connections:
             new_connections.remove(edge[1])
         elif edge[1] == node_id and edge[0] in new_connections:
@@ -47,7 +47,8 @@ def highest_degree(graph, node_id, n):
 
     # Map sorted degree list to node id's and filter out the nodes already connected
     node_candidates = remove_connected_nodes([tup[0] for tup in deg_list], graph.edges(data=True), node_id)
-    
+
+    # Pick n node(s) our of the new connection
     if n <= len(node_candidates):
         choices = node_candidates[0:n]
     else:

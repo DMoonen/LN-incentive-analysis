@@ -4,7 +4,7 @@ import fee_strategies
 import placement_strategies
 
 test_flag = 1
-node_placement_amt = 5
+node_placement_amt = 4
 
 if test_flag:
     print("testflag enabled!")
@@ -35,7 +35,7 @@ print(g.edges(data=True))
 g, our_party_id = scripts.add_node(g)
 
 # Add a party that represents the channels that will be created after us
-g, other_party_id = scripts.add_node(g)
+#g, other_party_id = scripts.add_node(g)
 
 # Created the rewards table after all new parties have been created
 rewards = scripts.init_reward_list(g)
@@ -44,14 +44,14 @@ rewards = scripts.init_reward_list(g)
 # g = fee_strategies.graph_fee_optimization(g)
 
 # Our party creates new channels
-g = placement_strategies.uniform_random(g, our_party_id, node_placement_amt)
+g = placement_strategies.highest_degree(g, our_party_id, node_placement_amt)
 print("Added 'our' edges")
 print(g.edges(data=True))
 
 # Other party creates new channels
-g = placement_strategies.uniform_random(g, other_party_id, node_placement_amt)
-print("Added 'other' edges")
-print(g.edges(data=True))
+#g = placement_strategies.uniform_random(g, other_party_id, node_placement_amt)
+#print("Added 'other' edges")
+#print(g.edges(data=True))
 
 #rewards = scripts.calc_node_profit(g, rewards)
 #g = fee_strategies.graph_fee_optimization(g)
