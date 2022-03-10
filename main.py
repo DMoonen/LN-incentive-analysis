@@ -44,17 +44,18 @@ rewards = scripts.init_reward_list(g)
 # g = fee_strategies.graph_fee_optimization(g)
 
 # Our party creates new channels
-g = placement_strategies.highest_degree(g, our_party_id, node_placement_amt)
-print("Added 'our' edges")
-print(g.edges(data=True))
+g = placement_strategies.betweenness_centrality(g, our_party_id, node_placement_amt)
+#print("Added 'our' edges")
+#print(g.edges(data=True))
 
 # Other party creates new channels
 #g = placement_strategies.uniform_random(g, other_party_id, node_placement_amt)
 #print("Added 'other' edges")
 #print(g.edges(data=True))
 
-#rewards = scripts.calc_node_profit(g, rewards)
+rewards = scripts.calc_node_profit(g, rewards)
 #g = fee_strategies.graph_fee_optimization(g)
-#rewards = scripts.calc_node_profit(g, rewards)
+rewards = scripts.calc_node_profit(g, rewards)
+print(rewards)
 
-#scripts.plot_rewards_graph(rewards, g.nodes())
+scripts.plot_rewards_graph(rewards, [our_party_id])
