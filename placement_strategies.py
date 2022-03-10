@@ -17,6 +17,15 @@ def remove_connected_nodes(nodelist, edgelist, node_id):
     return new_connections
 
 
+def create_edges(graph, choices, node_id):
+    for choice in choices:
+        graph = scripts.add_edge(graph, node_id, choice, 1000)
+        # Todo optimize newly created edge
+        # graph = scripts.add_edge(graph, choice, node_id, 1000)
+        # Todo optimize newly created edge
+    return graph
+
+
 def uniform_random(graph, node_id, n):
     # Filter nodes already connected with
     node_candidates = remove_connected_nodes(graph.nodes(), graph.edges(data=True), node_id)
@@ -28,16 +37,24 @@ def uniform_random(graph, node_id, n):
         choices = np.random.choice(node_candidates, len(node_candidates), replace=False)
 
     # Add the chosen edges to the network
-    for choice in choices:
-        graph = scripts.add_edge(graph, node_id, choice, 1000)
-        # Todo optimize newly created edge
-        # graph = scripts.add_edge(graph, choice, node_id, 1000)
-        # Todo optimize newly created edge
+    graph = create_edges(graph, choices, node_id)
     return graph
 
 
 def highest_degree(graph, node_id, n):
-    # Todo
+    # Sort by degree
+    deg_list = sorted(graph.degree(), key=lambda node: node[1], reverse=True)
+
+    # Map sorted degree list to node id's and filter out the nodes already connected
+    node_candidates = remove_connected_nodes([tup[0] for tup in deg_list], graph.edges(data=True), node_id)
+    
+    if n <= len(node_candidates):
+        choices = node_candidates[0:n]
+    else:
+        choices = node_candidates
+
+    # Add the chosen edges to the network
+    graph = create_edges(graph, choices, node_id)
     return graph
 
 
