@@ -60,7 +60,36 @@ def highest_degree(graph, node_id, n):
 
 
 def betweenness_centrality(graph, node_id, n):
-    # Todo
+    # Create n new edges
+    for i in range(n):
+        # Init of the optimal node to create a connection with
+        opt_betweenness = 0
+        opt_node = -1
+
+        # Create new connections list.
+        node_candidates = remove_connected_nodes(graph.nodes(), graph.edges(data=True), node_id)
+
+        # Try all connections (create, observer, delete)
+        for node_candid in node_candidates:
+            # Create the candidate edge
+            graph = scripts.add_edge(graph, node_id, node_candid, weight=1000)
+
+            # Record the centrality
+            between_cent = nx.edge_betweenness_centrality(graph, normalized=False)
+
+            # Store the centrality
+            score = between_cent[(node_id, node_candid)]
+            if score > opt_betweenness:
+                opt_betweenness = score
+                opt_node = node_candid
+
+            # Remove the candidate edge
+            graph = scripts.remove_edge(graph, node_id, node_candid)
+
+        # Create the optimal betweenness centrality edge
+        if opt_node is not -1:
+            graph = create_edges(graph, [opt_node], node_id)
+
     return graph
 
 
