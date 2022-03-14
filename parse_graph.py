@@ -1,7 +1,7 @@
 import networkx as nx
 import scripts
 
-test_flag = 1
+test_flag = 0
 
 if test_flag:
     print("testflag enabled!")
@@ -10,7 +10,7 @@ if test_flag:
     tx_amts = [100, 10000, 1000000]
 else:
     data_path = 'data/lnjson/'
-    data_filename = 'ln.json'
+    data_filename = 'new.json'
     tx_amts = [100, 10000, 1000000]
 
 scripts.convert_json_to_graph(data_path, data_filename, tx_amts)
