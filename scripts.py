@@ -38,8 +38,7 @@ def write_json(data, file_path):
 """
 def add_edge(graph, node1, node2, weight):
     graph.add_edge(node1, node2, weight=weight)
-    edge = graph.edges[(node1, node2)]
-    graph = fee_strategies.edge_fee_optimization(graph, edge)
+    graph = fee_strategies.edge_fee_optimization(graph, node1, node2, weight)
     return graph
 
 
