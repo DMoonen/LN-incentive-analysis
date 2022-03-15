@@ -1,6 +1,7 @@
 import networkx as nx
 import json
 import matplotlib.pyplot as plt
+import fee_strategies
 
 
 """Function that load the data from json from filepath.
@@ -9,7 +10,7 @@ import matplotlib.pyplot as plt
 :returns: The data object present in the json file.
 """
 def read_json(file_path):
-    with open(file_path) as file:
+    with open(file_path, encoding="utf8") as file:
         data = json.load(file)
     file.close()
     return data
@@ -37,6 +38,8 @@ def write_json(data, file_path):
 """
 def add_edge(graph, node1, node2, weight):
     graph.add_edge(node1, node2, weight=weight)
+    edge = graph.edges[(node1, node2)]
+    graph = fee_strategies.edge_fee_optimization(graph, edge)
     return graph
 
 

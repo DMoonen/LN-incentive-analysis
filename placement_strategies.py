@@ -103,36 +103,21 @@ the edge with the highest simulated use will be created within the graph.
 :returns: The graph to which edges have been added.
 """
 def betweenness_centrality(graph, node_id, n):
-    # Create n new edges
-    for i in range(n):
-        # Init of the optimal node to create a connection with
-        opt_betweenness = 0
-        opt_node = -1
+    # Record the centrality
+    between_cent = nx.betweenness_centrality(graph, normalized=False)
+    between_cent_sorted = sorted(between_cent.items(), key=lambda x: x[1], reverse=True)
 
-        # Create new connections list.
-        node_candidates = remove_connected_nodes(graph.nodes(), graph.edges(data=True), node_id)
+    # Map sorted degree list to node id's and filter out the nodes already connected
+    node_candidates = remove_connected_nodes([tup[0] for tup in between_cent_sorted], graph.edges(data=True), node_id)
 
-        # Try all connections (create, observer, delete)
-        for node_candid in node_candidates:
-            # Create the candidate edge
-            graph = scripts.add_edge(graph, node_id, node_candid, weight=1000)
+    # Pick n node(s) our of the new connection
+    if n <= len(node_candidates):
+        choices = node_candidates[0:n]
+    else:
+        choices = node_candidates
 
-            # Record the centrality
-            between_cent = nx.edge_betweenness_centrality(graph, normalized=False)
-
-            # Store the centrality
-            score = between_cent[(node_id, node_candid)]
-            if score > opt_betweenness:
-                opt_betweenness = score
-                opt_node = node_candid
-
-            # Remove the candidate edge
-            graph = scripts.remove_edge(graph, node_id, node_candid)
-
-        # Create the optimal betweenness centrality edge
-        if opt_node != -1:
-            graph = create_edges(graph, [opt_node], node_id)
-
+    # Add the chosen edges to the network
+    graph = create_edges(graph, choices, node_id)
     return graph
 
 
@@ -174,5 +159,34 @@ would provide within the simulation, and does not solely rely on the the number 
 :returns: The graph to which edges have been added.
 """
 def fee_weighted_centrality(graph, node_id, n):
-    # Todo
+    # Todo change betweennes metric to fee obtained metric
+    # Create n new edges
+    for i in range(n):
+        # Init of the optimal node to create a connection with
+        opt_betweenness = 0
+        opt_node = -1
+
+        # Create new connections list.
+        node_candidates = remove_connected_nodes(graph.nodes(), graph.edges(data=True), node_id)
+
+        # Try all connections (create, observer, delete)
+        for node_candid in node_candidates:
+            # Create the candidate edge
+            graph = scripts.add_edge(graph, node_id, node_candid, weight=1000)
+
+            # Record the centrality
+            between_cent = nx.edge_betweenness_centrality(graph, normalized=False)
+
+            # Store the centrality
+            score = between_cent[(node_id, node_candid)]
+            if score > opt_betweenness:
+                opt_betweenness = score
+                opt_node = node_candid
+
+            # Remove the candidate edge
+            graph = scripts.remove_edge(graph, node_id, node_candid)
+
+        # Create the optimal betweenness centrality edge
+        if opt_node != -1:
+            graph = create_edges(graph, [opt_node], node_id)
     return graph
