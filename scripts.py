@@ -28,6 +28,25 @@ def write_json(data, file_path):
     fl.close()
 
 
+"""Function that searches the edge object from a graph object.
+
+:param graph: The graph to search.
+:param src_nodes: The node_id of the source.
+:param dest_nodes: The node_id of the destination.
+:param is_data: Boolean specifying whether the attribute dictionary contained within the edge should be returned.
+:returns: Returns the edge if found, -1 otherwise.
+"""
+def get_edge(graph, src_node, dest_node, is_data):
+    try:
+        edge_list = graph.edges([src_node], data=is_data)
+        for search_candid in edge_list:
+            if dest_node == search_candid[1]:
+                return search_candid
+        return -1
+    except:
+        print("When attempting to obtain the edge %s -> %s, the search returned an error" % (src_node, dest_node))
+
+
 """Function that adds an edge to a given graph.
 
 :param graph: The graph object one wishes to add an edge to.
@@ -38,7 +57,8 @@ def write_json(data, file_path):
 """
 def add_edge(graph, node1, node2, weight):
     graph.add_edge(node1, node2, weight=weight)
-    graph = fee_strategies.edge_fee_optimization(graph, node1, node2, weight)
+    edge = get_edge(graph, node1, node2, True)
+    graph = fee_strategies.edge_fee_optimization(graph, edge)
     return graph
 
 
