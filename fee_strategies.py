@@ -24,6 +24,7 @@ def edge_fee_optimization(graph, edge):
     global ebc_global
     global edge_global
 
+
     src_node = edge[0]
     dest_node = edge[1]
     weight = edge[2]
@@ -35,7 +36,10 @@ def edge_fee_optimization(graph, edge):
 
     edge_global = edge
     maximize_channel_reward(graph, 1, ChCost)
-    #Todo update edge with optimal fee/weight
+
+    print("Optimum Fee: %s" % maxRewFee)
+    if weight is not maxRewFee:
+        graph.add_edge(src_node, dest_node, weight=maxRewFee)
 
     return graph
 

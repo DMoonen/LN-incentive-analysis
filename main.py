@@ -4,7 +4,7 @@ import fee_strategies
 import placement_strategies
 
 test_flag = 0
-node_placement_amt = 4
+node_placement_amt = 1
 
 if test_flag:
     print("testflag enabled!")
