@@ -43,7 +43,7 @@ rewards = scripts.init_reward_list(g)
 
 # Our party creates new channels
 print("Start placement strategy")
-g = placement_strategies.betweenness_centrality(g, our_party_id, node_placement_amt)
+g = placement_strategies.uniform_random(g, our_party_id, node_placement_amt)
 print("Added 'our' edges")
 #print(g.edges(data=True))
 
@@ -58,3 +58,4 @@ print("Added 'our' edges")
 #print(rewards)
 
 #scripts.plot_rewards_graph(rewards, [our_party_id])
+scripts.write_rewards_graph_data(rewards, data_path+"results/", "rewards_uniform_random"+str(tx_amts[0])+".json")
