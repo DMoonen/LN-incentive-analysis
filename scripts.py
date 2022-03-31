@@ -139,6 +139,19 @@ def plot_rewards_graph(rewards, node_list):
     plt.show()
 
 
+"""Function writes the rewards dictionairy as a json file to the requested datapath.
+
+:param rewards: The reward dictionary.
+:param data_path: The path to which to write the file to.
+:param data_filename: The filename to be written to.
+:returns: Void.
+"""
+def write_rewards_graph_data(rewards, data_path, data_filename):
+    write_json(rewards, data_path+data_filename)
+    print("Written rewards data to file.")
+    return
+
+
 """Function that parses a json file to a .gml of a graph object.
 
 :param data_path: Data path from the root of the project folder to the json file.
