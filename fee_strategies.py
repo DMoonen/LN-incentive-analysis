@@ -6,11 +6,17 @@ ChCost = 10000
 div = 10
 
 ebc_global = np.zeros(ChCost + 1)
-maxRewFee = 1
-maxRew = 0
+max_rew_fee = 1
+max_rew = 0
 
 print_flag = True
 
+
+"""Function optimizes the edge fees within a given graph.
+
+:param graph: The graph to be optimized.
+:returns: The optimized graph.
+"""
 def graph_fee_optimization(graph):
     edge_list = graph.edges(data=True)
     for edge in edge_list:
@@ -18,32 +24,58 @@ def graph_fee_optimization(graph):
     return graph
 
 
+"""Function optimizes a single edges' fee within a given graph.
+
+:param graph: The graph object.
+:param edge: The edge to be optimized.
+:returns: The updated graph.
+"""
 def edge_fee_optimization(graph, edge):
-    global maxRewFee
-    global maxRew
-    global ebc_global
-    global edge_global
-
-
     src_node = edge[0]
     dest_node = edge[1]
     weight = edge[2]
-    print("Optimizing weight of %s -> %s" % (src_node, dest_node))
 
-    ebc_global = np.zeros(ChCost + 1)
-    maxRewFee = 1
-    maxRew = 0
+    reward = edge_fee_calculation(graph, edge)
 
-    edge_global = edge
-    maximize_channel_reward(graph, 1, ChCost)
-
-    print("Optimum Fee: %s" % maxRewFee)
-    if weight is not maxRewFee:
-        graph.add_edge(src_node, dest_node, weight=maxRewFee)
+    print("Optimum Fee: %s" % reward)
+    if weight is not reward:
+        graph.add_edge(src_node, dest_node, weight=max_rew_fee)
 
     return graph
 
 
+"""Function that calculates the optimal fee of an edge within a given graph.
+
+:param graph: The graph object.
+:param edge: The edge to be optimized.
+:returns: The updated graph.
+"""
+def edge_fee_calculation(graph, edge):
+    global max_rew_fee
+    global max_rew
+    global ebc_global
+    global edge_global
+
+    src_node = edge[0]
+    dest_node = edge[1]
+    print("Optimizing weight of %s -> %s" % (src_node, dest_node))
+
+    ebc_global = np.zeros(ChCost + 1)
+    max_rew_fee = 1
+    max_rew = 0
+
+    edge_global = edge
+    maximize_channel_reward(graph, 1, ChCost)
+
+    return max_rew_fee
+
+
+"""Function updates the global variables containing edge betweenness centrality during edge optimalization.
+
+:param graph: The graph object.
+:param fee: The fee value to analyse the edge betweenness centrality with.
+:returns: The edge betweenness centrality.
+"""
 def update_ebc(graph, fee):
     src_id = edge_global[0]
     dest_id = edge_global[1]
@@ -54,16 +86,24 @@ def update_ebc(graph, fee):
     return ebc
 
 
-def maximize_channel_reward(graph, minFee, maxFee):
-    global maxRewFee
-    global maxRew
+"""Function that maximizes channel rewards, by efficiently searching different fee values.
+By calculating the maximum theoretical reward for an interval, intervals can be discarded aiding in the search.
+
+:param graph: The graph object.
+:param min_fee: Lower bound of the search space.
+:param max_fee: Upper bound of the search space.
+:returns: Void.
+"""
+def maximize_channel_reward(graph, min_fee, max_fee):
+    global max_rew_fee
+    global max_rew
     global ebc_global
 
     if print_flag:
-        print("minFee = %s" % minFee)
-        print("maxFee = %s" % maxFee)
-        print("maxRew = %s" % maxRew)
-        print("maxRewFee = %s" % maxRewFee)
+        print("min_fee = %s" % min_fee)
+        print("max_fee = %s" % max_fee)
+        print("max_rew = %s" % max_rew)
+        print("max_rew_fee = %s" % max_rew_fee)
 
     er = np.zeros(div)
     er_max = np.zeros(div)
@@ -71,17 +111,17 @@ def maximize_channel_reward(graph, minFee, maxFee):
     update_ebc(graph, 1)
 
     # Base
-    if maxFee - minFee <= 10:
-        for fee in np.arange(minFee, maxFee + 1):
+    if max_fee - min_fee <= 10:
+        for fee in np.arange(min_fee, max_fee + 1):
             if ebc_global[fee] == 0:
                 ebc = update_ebc(graph, fee)
                 ebc_global[fee] = ebc
             else:
                 ebc = ebc_global[fee]
             er_local = ebc * fee
-            if er_local > maxRew:
-                maxRewFee = fee
-                maxRew = er_local
+            if er_local > max_rew:
+                max_rew_fee = fee
+                max_rew = er_local
         return
 
     else:
@@ -89,7 +129,7 @@ def maximize_channel_reward(graph, minFee, maxFee):
             print("in_recursion")
         # Recursive part
         for index1 in np.arange(0, div):
-            fee = int((maxFee - minFee) * index1 / div) + minFee
+            fee = int((max_fee - min_fee) * index1 / div) + min_fee
             if print_flag:
                 print("f = %s" % fee)
 
@@ -104,12 +144,11 @@ def maximize_channel_reward(graph, minFee, maxFee):
             if print_flag:
                 print("ebc = %s" % ebc)
                 print("ER=", er[index1])
-            if er[index1] > maxRew:
-                maxRewFee = fee
-                maxRew = er[index1]
+            if er[index1] > max_rew:
+                max_rew_fee = fee
+                max_rew = er[index1]
 
-            # print 'EBC:  ', graph.es[edge.index]['edgebetweenness']
-            er_max[index1] = ebc * (((maxFee - minFee) * (index1 + 1) / div) + minFee)
+            er_max[index1] = ebc * (int((max_fee - min_fee) * (index1 + 1) / div) + min_fee)
             if print_flag:
                 print("ER_max = %s" % er_max[index1])
             if er[index1] == 0:
@@ -119,13 +158,13 @@ def maximize_channel_reward(graph, minFee, maxFee):
 
         for index1 in np.arange(0, div):
 
-            if er_max[index1] > maxRew:
-                rec_minFee = int(((maxFee - minFee) * index1 / div) + minFee)
-                rec_maxFee = int(((maxFee - minFee) * (index1 + 1) / div) + minFee)
-                maximize_channel_reward(graph, rec_minFee, rec_maxFee)
+            if er_max[index1] > max_rew:
+                rec_min_fee = int((max_fee - min_fee) * index1 / div) + min_fee
+                rec_max_fee = int((max_fee - min_fee) * (index1 + 1) / div) + min_fee
+                maximize_channel_reward(graph, rec_min_fee, rec_max_fee)
             else:
-                rec_minFee = int(((maxFee - minFee) * index1 / div) + minFee)
-                rec_maxFee = int(((maxFee - minFee) * (index1 + 1) / div) + minFee)
+                rec_min_fee = int((max_fee - min_fee) * index1 / div) + min_fee
+                rec_max_fee = int((max_fee - min_fee) * (index1 + 1) / div) + min_fee
                 if print_flag:
-                    print("discarding: %s - %s" % (rec_minFee, rec_maxFee))
+                    print("discarding: %s - %s" % (rec_min_fee, rec_max_fee))
     return
