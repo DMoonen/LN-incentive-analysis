@@ -1,4 +1,3 @@
-import networkx as nx
 import scripts
 
 test_flag = 0
