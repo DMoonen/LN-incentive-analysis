@@ -126,7 +126,7 @@ def calc_node_profit(graph, prev_rewards):
 :param node_list: The list of nodes of which one want the corresponding rewards plotted.
 :returns: Void.
 """
-def plot_rewards_graph(rewards, node_list):
+def plot_rewards_graph(data_path, rewards, node_list):
     #  xaxis is interval [1, #iterations]
     xaxis = range(1, len(rewards[list(node_list)[0]]) + 1)
     for node in node_list:
@@ -136,7 +136,7 @@ def plot_rewards_graph(rewards, node_list):
     plt.ylabel('Reward (#Milli Satishi\'s)')
     plt.title('Node rewards over time.')
     plt.legend()
-    plt.show()
+    plt.savefig(data_path)
 
 
 """Function writes the rewards dictionairy as a json file to the requested datapath.
