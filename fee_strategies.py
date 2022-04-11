@@ -1,6 +1,7 @@
 import networkx as nx
 import copy
 import numpy as np
+import multiprocessing
 
 ChCost = 10000
 div = 10
@@ -11,28 +12,51 @@ max_rew = 0
 
 print_flag = False
 
+graph_global = -1
 
 """Function optimizes the edge fees within a given graph.
 
 :param graph: The graph to be optimized.
 :returns: The optimized graph.
-"""
+"""# todo change doc
 def graph_fee_optimization(graph):
+    global graph_global
     calculation_graph = copy.deepcopy(graph)
+    graph_global = graph
+    jobs = []
+    available_cores = multiprocessing.cpu_count()
+    print("cores",available_cores)
 
     edge_list = graph.edges(data=True)
+    """for edge in edge_list:
+        p = multiprocessing.Process(target=graph_fee_optimization_job, args=(edge, calculation_graph))
+        jobs.append(p)
+        p.start()"""
+
+    pool = multiprocessing.Pool(available_cores-2)
     for edge in edge_list:
-        src_node = edge[0]
-        dest_node = edge[1]
-        weight = edge[2]
+        pool.apply_async(graph_fee_optimization_job, args=(edge, calculation_graph))
+    pool.close()
+    pool.join()
 
-        reward = edge_fee_calculation(calculation_graph, edge)
+    return graph_global
 
-        if print_flag:
-            print("Optimum Fee: %s" % reward)
-        if weight is not reward:
-            graph.add_edge(src_node, dest_node, weight=reward)
-    return graph
+
+# Todo documentation
+def graph_fee_optimization_job(edge, calculation_graph):
+    global graph_global
+    src_node = edge[0]
+    dest_node = edge[1]
+    weight = edge[2]
+    print("Optimizing weight of %s -> %s" % (src_node, dest_node))
+
+    reward = edge_fee_calculation(calculation_graph, edge)
+
+    if print_flag:
+        print("Optimum Fee: %s" % reward)
+    if weight is not reward:
+        graph_global.add_edge(src_node, dest_node, weight=int(reward))
+    return
 
 
 """Function optimizes a single edges' fee within a given graph.
@@ -45,13 +69,14 @@ def edge_fee_optimization(graph, edge):
     src_node = edge[0]
     dest_node = edge[1]
     weight = edge[2]
+    print("Optimizing weight of %s -> %s" % (src_node, dest_node))
 
     reward = edge_fee_calculation(graph, edge)
 
     if print_flag:
         print("Optimum Fee: %s" % reward)
     if weight is not reward:
-        graph.add_edge(src_node, dest_node, weight=reward)
+        graph.add_edge(src_node, dest_node, weight=int(reward))
 
     return graph
 
@@ -70,8 +95,7 @@ def edge_fee_calculation(graph, edge):
 
     src_node = edge[0]
     dest_node = edge[1]
-    if print_flag:
-        print("Optimizing weight of %s -> %s" % (src_node, dest_node))
+
 
     ebc_global = np.zeros(ChCost + 1)
     max_rew_fee = 1

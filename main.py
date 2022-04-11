@@ -4,7 +4,7 @@ import fee_strategies
 import placement_strategies
 
 test_flag = 1
-node_placement_amt = 4
+node_placement_amt = 5
 
 if test_flag:
     print("testflag enabled!")
@@ -17,7 +17,7 @@ else:
 k2n = scripts.read_json(data_path+"key_to_node_map.json")
 n2k = scripts.read_json(data_path+"node_to_key_map.json")
 
-"""" There are 3 scenario's. 
+"""" There are 4 scenario's. 
     1. Where it is only us optimizes their solution.
     2. Where us and the network interact may optimize their solution.
     3. Where us and the other party are allowed to optimize their solution.
@@ -39,7 +39,7 @@ def scenario1(tx_amt):
     rewards = scripts.init_reward_list(g)
 
     # Allow the network to optimize their fees
-    g = fee_strategies.graph_fee_optimization(g)
+    #g = fee_strategies.graph_fee_optimization(g)
 
     # Place the channels
     for node in range(node_placement_amt):
@@ -68,8 +68,8 @@ def scenario2(tx_amt):
     # Place the channels
     for node in range(node_placement_amt):
         g = placement_strategies.highest_degree(g, our_party_id, 1)
-        rewards = scripts.calc_node_profit(g, rewards)
         g = fee_strategies.graph_fee_optimization(g)
+        rewards = scripts.calc_node_profit(g, rewards)
 
     # Write to file
     scripts.write_rewards_graph_data(rewards, data_path + "results/", "rewards_highest_degree_" + str(tx_amt)
@@ -129,23 +129,24 @@ def scenario4(tx_amt):
     # Place the channels
     for node in range(node_placement_amt):
         g = placement_strategies.highest_degree(g, our_party_id, 1)
-        rewards = scripts.calc_node_profit(g, rewards)
         g = fee_strategies.graph_fee_optimization(g)
+        rewards = scripts.calc_node_profit(g, rewards)
 
     # Place other party channels
     for node in range(node_placement_amt):
         g = placement_strategies.highest_degree(g, other_party_id, 1)
-        rewards = scripts.calc_node_profit(g, rewards)
         g = fee_strategies.graph_fee_optimization(g)
+        rewards = scripts.calc_node_profit(g, rewards)
 
     # Write to file
     scripts.write_rewards_graph_data(rewards, data_path + "results/", "rewards_highest_degree_" + str(tx_amt)
                                      + "_scenario_4.json")
 
 
-for tx_amount in tx_amts:
-    print("tx_amt:", tx_amount)
-    scenario1(tx_amount)
-    scenario2(tx_amount)
-    scenario3(tx_amount)
-    scenario4(tx_amount)
+if __name__ == '__main__':
+    for tx_amount in tx_amts[:1]:
+        print("tx_amt:", tx_amount)
+        scenario1(tx_amount)
+        scenario2(tx_amount)
+        scenario3(tx_amount)
+        scenario4(tx_amount)
