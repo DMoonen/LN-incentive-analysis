@@ -30,13 +30,11 @@ def remove_connected_nodes(nodelist, edgelist, node_id):
 :param choices: List of all destinations for which an edge needs to be created.
 :param node_id: The source for the edges that need to be created.
 :returns: The graph to which edges have been added.
-"""
-def create_edges(graph, choices, node_id):
+"""# Todo fix doc
+def create_edges(graph, choices, node_id, needs_optimization):
     for choice in choices:
-        graph = scripts.add_edge(graph, node_id, choice, 1000)
-        # Todo optimize newly created edge
-        # graph = scripts.add_edge(graph, choice, node_id, 1000)
-        # Todo optimize newly created edge
+        graph = scripts.add_edge(graph, node_id, choice, 1000, needs_optimization)
+        graph = scripts.add_edge(graph, choice, node_id, 1000, needs_optimization)
     return graph
 
 
@@ -48,8 +46,8 @@ change, and one is selected at random.
 :param node_id: The source for the edges that need to be created.
 :param n: The number of edges that need to be created using this strategy.
 :returns: The graph to which edges have been added.
-"""
-def uniform_random(graph, node_id, n):
+"""# Todo fix doc
+def uniform_random(graph, node_id, n, needs_optimization):
     # Filter nodes already connected with
     node_candidates = remove_connected_nodes(graph.nodes(), graph.edges(data=True), node_id)
 
@@ -60,7 +58,7 @@ def uniform_random(graph, node_id, n):
         choices = np.random.choice(node_candidates, len(node_candidates), replace=False)
 
     # Add the chosen edges to the network
-    graph = create_edges(graph, choices, node_id)
+    graph = create_edges(graph, choices, node_id, needs_optimization)
     return graph
 
 
@@ -72,8 +70,8 @@ existing connections they have. Then the top n nodes are chosen to make this con
 :param node_id: The source for the edges that need to be created.
 :param n: The number of edges that need to be created using this strategy.
 :returns: The graph to which edges have been added.
-"""
-def highest_degree(graph, node_id, n):
+"""# Todo fix doc
+def highest_degree(graph, node_id, n, needs_optimization):
     # Sort by degree
     deg_list = sorted(graph.degree(), key=lambda node: node[1], reverse=True)
 
@@ -87,7 +85,7 @@ def highest_degree(graph, node_id, n):
         choices = node_candidates
 
     # Add the chosen edges to the network
-    graph = create_edges(graph, choices, node_id)
+    graph = create_edges(graph, choices, node_id, needs_optimization)
     return graph
 
 
@@ -101,8 +99,8 @@ the edge with the highest simulated use will be created within the graph.
 :param node_id: The source for the edges that need to be created.
 :param n: The number of edges that need to be created using this strategy.
 :returns: The graph to which edges have been added.
-"""
-def betweenness_centrality(graph, node_id, n):
+"""# Todo fix doc
+def betweenness_centrality(graph, node_id, n, needs_optimization):
     # Record the centrality
     between_cent = nx.betweenness_centrality(graph, normalized=False)
     between_cent_sorted = sorted(between_cent.items(), key=lambda x: x[1], reverse=True)
@@ -117,7 +115,7 @@ def betweenness_centrality(graph, node_id, n):
         choices = node_candidates
 
     # Add the chosen edges to the network
-    graph = create_edges(graph, choices, node_id)
+    graph = create_edges(graph, choices, node_id, needs_optimization)
     return graph
 
 
@@ -129,8 +127,8 @@ path within the network.
 :param node_id: The source for the edges that need to be created.
 :param n: The number of edges that need to be created using this strategy.
 :returns: The graph to which edges have been added.
-"""
-def k_center(graph, node_id, n):
+"""# Todo fix doc
+def k_center(graph, node_id, n, needs_optimization):
     # Todo
     return graph
 
@@ -142,8 +140,8 @@ The strategy used in this function is k-means. Here the aim is to lower the aver
 :param node_id: The source for the edges that need to be created.
 :param n: The number of edges that need to be created using this strategy.
 :returns: The graph to which edges have been added.
-"""
-def k_means(graph, node_id, n):
+"""# Todo fix doc
+def k_means(graph, node_id, n, needs_optimization):
     # Todo
     return graph
 
@@ -157,9 +155,12 @@ would provide within the simulation, and does not solely rely on the the number 
 :param node_id: The source for the edges that need to be created.
 :param n: The number of edges that need to be created using this strategy.
 :returns: The graph to which edges have been added.
-"""
-def fee_weighted_centrality(graph, node_id, n):
+"""# Todo fix doc
+def fee_weighted_centrality(graph, node_id, n, needs_optimization):
     # Todo change betweennes metric to fee obtained metric
+
+    # Todo change assign calculation graph
+
     # Create n new edges
     for i in range(n):
         # Init of the optimal node to create a connection with
@@ -172,7 +173,7 @@ def fee_weighted_centrality(graph, node_id, n):
         # Try all connections (create, observer, delete)
         for node_candid in node_candidates:
             # Create the candidate edge
-            graph = scripts.add_edge(graph, node_id, node_candid, weight=1000)
+            graph = scripts.add_edge(graph, node_id, node_candid, 1000, True)
 
             # Record the centrality
             between_cent = nx.edge_betweenness_centrality(graph, normalized=False)
@@ -188,5 +189,5 @@ def fee_weighted_centrality(graph, node_id, n):
 
         # Create the optimal betweenness centrality edge
         if opt_node != -1:
-            graph = create_edges(graph, [opt_node], node_id)
+            graph = create_edges(graph, [opt_node], node_id, needs_optimization)
     return graph

@@ -53,12 +53,14 @@ def get_edge(graph, src_node, dest_node, is_data):
 :param node1: The source of the edge.
 :param node2: The destination of the edge.
 :param filepath: The weight associated to the edge to be created.
+:param needs_optimization: 
 :returns: The graph to which an edge has been added.
-"""
-def add_edge(graph, node1, node2, weight):
+"""# Todo fix doc
+def add_edge(graph, node1, node2, weight, needs_optimization):
     graph.add_edge(node1, node2, weight=weight)
     edge = get_edge(graph, node1, node2, True)
-    graph = fee_strategies.edge_fee_optimization(graph, edge)
+    if needs_optimization:
+        graph = fee_strategies.edge_fee_optimization(graph, edge)
     return graph
 
 
@@ -70,7 +72,7 @@ def add_edge(graph, node1, node2, weight):
 :returns: The graph from which an edge has been removed.
 """
 def remove_edge(graph, node1, node2):
-    graph.remove_edge(node1, node2)
+    graph = graph.remove_edge(node1, node2)
     return graph
 
 
@@ -137,6 +139,7 @@ def plot_rewards_graph(data_path, rewards, node_list):
     plt.title('Node rewards over time.')
     plt.legend()
     plt.savefig(data_path)
+    plt.clf()
 
 
 """Function writes the rewards dictionairy as a json file to the requested datapath.
@@ -194,10 +197,12 @@ def convert_json_to_graph(data_path, data_filename, tx_amts):
             # Make 2 directional edges based on the 2 node policies
             if u in key_to_node and v in key_to_node and node_pol1 is not None:
                 fee = int(node_pol1['fee_base_msat']) + int(node_pol1['fee_rate_milli_msat']) * tx_amt * 0.001
-                graph.add_edge(key_to_node[u], key_to_node[v], weight=fee)
+                #graph.add_edge(key_to_node[u], key_to_node[v], weight=fee)
+                graph = add_edge(graph, key_to_node[u], key_to_node[v], fee, False)
 
             if u in key_to_node and v in key_to_node and node_pol2 is not None:
                 fee = int(node_pol2['fee_base_msat']) + int(node_pol2['fee_rate_milli_msat']) * tx_amt * 0.001
-                graph.add_edge(key_to_node[v], key_to_node[u], weight=fee)
+                #graph.add_edge(key_to_node[v], key_to_node[u], weight=fee)
+                graph = add_edge(graph, key_to_node[v], key_to_node[u], fee, False)
 
         nx.write_gml(graph, data_path + "graph" + str(tx_amt) + ".gml")

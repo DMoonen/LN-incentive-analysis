@@ -8,7 +8,7 @@ node_placement_amt = 5
 
 if test_flag:
     print("testflag enabled!")
-    data_path = 'data/testjson/'
+    data_path = 'data/testjsonlarge/'
     tx_amts = [100, 10000, 1000000]
 else:
     data_path = 'data/lnjson/'
@@ -34,6 +34,7 @@ def scenario1(tx_amt):
 
     # Add a party that represents "us" within the network
     g, our_party_id = scripts.add_node(g)
+    g = placement_strategies.highest_degree(g, our_party_id, 2, False)
 
     # Created the rewards table after all new parties have been created
     rewards = scripts.init_reward_list(g)
@@ -43,7 +44,7 @@ def scenario1(tx_amt):
 
     # Place the channels
     for node in range(node_placement_amt):
-        g = placement_strategies.highest_degree(g, our_party_id, 1)
+        g = placement_strategies.highest_degree(g, our_party_id, 1, True)
         rewards = scripts.calc_node_profit(g, rewards)
 
     # Write to file
@@ -58,6 +59,7 @@ def scenario2(tx_amt):
 
     # Add a party that represents "us" within the network
     g, our_party_id = scripts.add_node(g)
+    g = placement_strategies.highest_degree(g, our_party_id, 2, False)
 
     # Created the rewards table after all new parties have been created
     rewards = scripts.init_reward_list(g)
@@ -67,7 +69,7 @@ def scenario2(tx_amt):
 
     # Place the channels
     for node in range(node_placement_amt):
-        g = placement_strategies.highest_degree(g, our_party_id, 1)
+        g = placement_strategies.highest_degree(g, our_party_id, 1, True)
         g = fee_strategies.graph_fee_optimization(g)
         rewards = scripts.calc_node_profit(g, rewards)
 
@@ -83,9 +85,11 @@ def scenario3(tx_amt):
 
     # Add a party that represents "us" within the network
     g, our_party_id = scripts.add_node(g)
+    g = placement_strategies.highest_degree(g, our_party_id, 2, False)
 
     # Add a party that represents the channels that will be created after us
     g, other_party_id = scripts.add_node(g)
+    g = placement_strategies.highest_degree(g, other_party_id, 2, False)
 
     # Created the rewards table after all new parties have been created
     rewards = scripts.init_reward_list(g)
@@ -95,12 +99,12 @@ def scenario3(tx_amt):
 
     # Place the channels
     for node in range(node_placement_amt):
-        g = placement_strategies.highest_degree(g, our_party_id, 1)
+        g = placement_strategies.highest_degree(g, our_party_id, 1, True)
         rewards = scripts.calc_node_profit(g, rewards)
 
     # Place other party channels
     for node in range(node_placement_amt):
-        g = placement_strategies.highest_degree(g, other_party_id, 1)
+        g = placement_strategies.highest_degree(g, other_party_id, 1, True)
         rewards = scripts.calc_node_profit(g, rewards)
 
     # Write to file
@@ -116,9 +120,11 @@ def scenario4(tx_amt):
 
     # Add a party that represents "us" within the network
     g, our_party_id = scripts.add_node(g)
+    g = placement_strategies.highest_degree(g, our_party_id, 2, False)
 
     # Add a party that represents the channels that will be created after us
     g, other_party_id = scripts.add_node(g)
+    g = placement_strategies.highest_degree(g, other_party_id, 2, False)
 
     # Created the rewards table after all new parties have been created
     rewards = scripts.init_reward_list(g)
@@ -128,13 +134,13 @@ def scenario4(tx_amt):
 
     # Place the channels
     for node in range(node_placement_amt):
-        g = placement_strategies.highest_degree(g, our_party_id, 1)
+        g = placement_strategies.highest_degree(g, our_party_id, 1, True)
         g = fee_strategies.graph_fee_optimization(g)
         rewards = scripts.calc_node_profit(g, rewards)
 
     # Place other party channels
     for node in range(node_placement_amt):
-        g = placement_strategies.highest_degree(g, other_party_id, 1)
+        g = placement_strategies.highest_degree(g, other_party_id, 1, True)
         g = fee_strategies.graph_fee_optimization(g)
         rewards = scripts.calc_node_profit(g, rewards)
 
@@ -146,7 +152,7 @@ def scenario4(tx_amt):
 if __name__ == '__main__':
     for tx_amount in tx_amts[:1]:
         print("tx_amt:", tx_amount)
-        scenario1(tx_amount)
+        #scenario1(tx_amount)
         scenario2(tx_amount)
-        scenario3(tx_amount)
-        scenario4(tx_amount)
+        #cenario3(tx_amount)
+        #cenario4(tx_amount)
