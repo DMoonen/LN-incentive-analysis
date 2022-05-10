@@ -27,10 +27,8 @@ def test(tx_amt):
 
     # Place the channels
     for node in range(node_placement_amt):
-        g = placement_strategies.highest_degree(g, our_party_id, 1, True)
+        g = placement_strategies.k_center(g, our_party_id, 1, True)
         rewards = scripts.calc_node_profit(g, rewards)
-
-    g = fee_strategies.graph_fee_optimization(g)
 
     """
     print(g.edges(data=True))

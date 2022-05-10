@@ -39,9 +39,6 @@ def scenario1(tx_amt):
     # Created the rewards table after all new parties have been created
     rewards = scripts.init_reward_list(g)
 
-    # Allow the network to optimize their fees
-    #g = fee_strategies.graph_fee_optimization(g)
-
     # Place the channels
     for node in range(node_placement_amt):
         g = placement_strategies.highest_degree(g, our_party_id, 1, True)
@@ -93,9 +90,6 @@ def scenario3(tx_amt):
 
     # Created the rewards table after all new parties have been created
     rewards = scripts.init_reward_list(g)
-
-    # Allow the network to optimize their fees
-    g = fee_strategies.graph_fee_optimization(g)
 
     # Place the channels
     for node in range(node_placement_amt):
@@ -153,6 +147,6 @@ if __name__ == '__main__':
     for tx_amount in tx_amts[:1]:
         print("tx_amt:", tx_amount)
         #scenario1(tx_amount)
-        scenario2(tx_amount)
-        #cenario3(tx_amount)
+        #scenario2(tx_amount)
+        scenario3(tx_amount)
         #cenario4(tx_amount)
