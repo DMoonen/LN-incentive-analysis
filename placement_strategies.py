@@ -121,15 +121,28 @@ def betweenness_centrality(graph, node_id, n, needs_optimization):
 
 """Function for determining how to create new edges connecting a node further to the graph.
 The strategy used in this function is k-center. Here the aim is to create new channels to shorten the current longest 
-path within the network.
+path within the network. It aims to do so from the perspective of "our" source node, the closer we are to every other 
+node in the network, the closer every other node in the network is to each other (via us).
 
 :param graph: The graph object one wishes to add an edge to.
 :param node_id: The source for the edges that need to be created.
 :param n: The number of edges that need to be created using this strategy.
 :returns: The graph to which edges have been added.
-"""# Todo fix doc
+"""
 def k_center(graph, node_id, n, needs_optimization):
-    # Todo
+    for i in range(n):
+        dist_dict = nx.single_source_dijkstra_path(graph, node_id)
+        dist_dict.pop(node_id)
+
+        longest_path_length = -1
+        longest_path_destination = -1
+        for path in dist_dict.values():
+            if len(path) > longest_path_length and len(path) > 2:
+                longest_path_length = len(path)
+                longest_path_destination = path[-1]
+
+        if longest_path_destination != -1:
+            graph = create_edges(graph, [longest_path_destination], node_id, needs_optimization)
     return graph
 
 
@@ -142,6 +155,10 @@ The strategy used in this function is k-means. Here the aim is to lower the aver
 :returns: The graph to which edges have been added.
 """# Todo fix doc
 def k_means(graph, node_id, n, needs_optimization):
+
+    #https://networkx.org/documentation/stable/reference/algorithms/shortest_paths.html
+    # average_shortest_path_length?
+
     # Todo
     return graph
 
