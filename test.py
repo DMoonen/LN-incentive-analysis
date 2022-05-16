@@ -4,7 +4,7 @@ import fee_strategies
 import placement_strategies
 
 test_flag = 1
-node_placement_amt = 5
+node_placement_amt = 1
 
 if test_flag:
     print("testflag enabled!")
@@ -15,7 +15,6 @@ else:
     tx_amts = [100, 10000, 1000000]
 
 def test(tx_amt):
-    # Todo Debug single edge on small network on single_edge_optimalization
     g = nx.read_gml(data_path + "graph" + str(tx_amt) + ".gml")
 
     # Add a party that represents "us" within the network
@@ -27,12 +26,13 @@ def test(tx_amt):
 
     # Place the channels
     for node in range(node_placement_amt):
-        g = placement_strategies.k_center(g, our_party_id, 1, True)
+        g = placement_strategies.fee_weighted_centrality(g, our_party_id, 1)
         rewards = scripts.calc_node_profit(g, rewards)
 
-    """
-    print(g.edges(data=True))
-    g = fee_strategies.graph_fee_optimization(g)
+
+    """print(g.edges(data=True))
+    #g = fee_strategies.graph_fee_optimization(g)
+    g = scripts.remove_edge(g, '0', '1')
     print(g.edges(data=True))"""
 
 

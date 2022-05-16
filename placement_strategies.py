@@ -1,6 +1,8 @@
 import networkx as nx
 import numpy as np
 import scripts
+import copy
+import multiprocessing
 
 
 """Function that takes as input the list of nodes and a node within a graph and removes the id's that are already 
@@ -31,10 +33,10 @@ def remove_connected_nodes(nodelist, edgelist, node_id):
 :param node_id: The source for the edges that need to be created.
 :returns: The graph to which edges have been added.
 """# Todo fix doc
-def create_edges(graph, choices, node_id, needs_optimization):
+def create_edges(graph, choices, node_id, needs_optimization, fee=1000):
     for choice in choices:
-        graph = scripts.add_edge(graph, node_id, choice, 1000, needs_optimization)
-        graph = scripts.add_edge(graph, choice, node_id, 1000, needs_optimization)
+        graph = scripts.add_edge(graph, node_id, choice, fee, needs_optimization)
+        graph = scripts.add_edge(graph, choice, node_id, fee, needs_optimization)
     return graph
 
 
@@ -173,38 +175,52 @@ would provide within the simulation, and does not solely rely on the the number 
 :param n: The number of edges that need to be created using this strategy.
 :returns: The graph to which edges have been added.
 """# Todo fix doc
-def fee_weighted_centrality(graph, node_id, n, needs_optimization):
-    # Todo change betweennes metric to fee obtained metric
-
-    # Todo change assign calculation graph
-
+def fee_weighted_centrality(graph, node_id, n):
     # Create n new edges
     for i in range(n):
-        # Init of the optimal node to create a connection with
-        opt_betweenness = 0
-        opt_node = -1
+        # Create copy for computation
+        calculation_graph = copy.deepcopy(graph)
 
         # Create new connections list.
-        node_candidates = remove_connected_nodes(graph.nodes(), graph.edges(data=True), node_id)
+        node_candidates = remove_connected_nodes(calculation_graph.nodes(), calculation_graph.edges(data=True), node_id)
 
-        # Try all connections (create, observer, delete)
+        # Init multiprocessing
+        available_cores = multiprocessing.cpu_count()
+        pool = multiprocessing.Pool(available_cores - 2)
+        edge_candidates = []
+
+        # Try all possible connections in parallel and store
         for node_candid in node_candidates:
-            # Create the candidate edge
-            graph = scripts.add_edge(graph, node_id, node_candid, 1000, True)
+            result = pool.apply_async(fee_weighted_centrality_job, args=(calculation_graph, node_id, node_candid)).get()
+            edge_candidates.append(result)
 
-            # Record the centrality
-            between_cent = nx.edge_betweenness_centrality(graph, normalized=False)
+        # Sort list by reward
+        edge_candidates.sort(key=lambda y: y[3], reverse=True)
 
-            # Store the centrality
-            score = between_cent[(node_id, node_candid)]
-            if score > opt_betweenness:
-                opt_betweenness = score
-                opt_node = node_candid
+        # If not empty create the edge that yields the highest reward
+        if len(edge_candidates) > 0:
+            chosen_candid = edge_candidates[0]
+            print("Node %s yielded highest reward(fee) with, %d(%d)" % (chosen_candid[1], chosen_candid[3],
+                                                                        chosen_candid[2]))
+            graph = create_edges(graph, [chosen_candid[1]], chosen_candid[0], False, chosen_candid[2])
 
-            # Remove the candidate edge
-            graph = scripts.remove_edge(graph, node_id, node_candid)
-
-        # Create the optimal betweenness centrality edge
-        if opt_node != -1:
-            graph = create_edges(graph, [opt_node], node_id, needs_optimization)
     return graph
+
+def fee_weighted_centrality_job(calculation_graph, node_id, node_candid):
+    # Create the candidate edge
+    calculation_graph = scripts.add_edge(calculation_graph, node_id, node_candid, 1000, True)
+    calculation_graph = scripts.add_edge(calculation_graph, node_candid, node_id, 1000, True)
+
+    # Record the centrality
+    between_cent = nx.edge_betweenness_centrality(calculation_graph, normalized=False)
+
+    # Calculate the reward
+    score = between_cent[(node_id, node_candid)]
+    fee = scripts.get_edge(calculation_graph, node_id, node_candid, True)[2]['weight']
+    reward = score * fee
+
+    # Remove the candidate edge
+    calculation_graph = scripts.remove_edge(calculation_graph, node_id, node_candid)
+
+    res = (node_id, node_candid, fee, reward)
+    return res
