@@ -157,11 +157,38 @@ The strategy used in this function is k-means. Here the aim is to lower the aver
 :returns: The graph to which edges have been added.
 """# Todo fix doc
 def k_means(graph, node_id, n, needs_optimization):
+    # Init
+    node_candidates = remove_connected_nodes(graph.nodes(), graph.edges(data=True), node_id)
+    removed_candidates = []
+    all_nodes = graph.nodes()
 
-    #https://networkx.org/documentation/stable/reference/algorithms/shortest_paths.html
-    # average_shortest_path_length?
+    # Analyze the node candidates until only n remain
+    while len(node_candidates) > n:
+        min_candid_distance = float('inf')
+        min_candid_id = -1
 
-    # Todo
+        # Compute which of the candidates is the closest if we take the rest of the graph as source
+        for node_candid in node_candidates:
+            observation_list = all_nodes - removed_candidates
+            observation_list.remove(node_candid)
+
+            res = nx.multi_source_dijkstra_path_length(graph, observation_list)
+            candid_dist = res[node_candid]
+
+            # Store minimal distance
+            if candid_dist < min_candid_distance and node_candid in node_candidates:
+                min_candid_id = node_candid
+                min_candid_distance = candid_dist
+        # Remove the closest node
+        if min_candid_id != -1:
+            removed_candidates.append(min_candid_id)
+            node_candidates.remove(min_candid_id)
+        # Check that should never be reached
+        elif min_candid_id == -1:
+            break
+
+    # Create the edges to the chosen nodes
+    graph = create_edges(graph, node_candidates, node_id, needs_optimization)
     return graph
 
 

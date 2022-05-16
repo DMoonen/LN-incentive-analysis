@@ -26,14 +26,8 @@ def test(tx_amt):
 
     # Place the channels
     for node in range(node_placement_amt):
-        g = placement_strategies.fee_weighted_centrality(g, our_party_id, 1)
+        g = placement_strategies.k_means(g, our_party_id, 5, True)
         rewards = scripts.calc_node_profit(g, rewards)
-
-
-    """print(g.edges(data=True))
-    #g = fee_strategies.graph_fee_optimization(g)
-    g = scripts.remove_edge(g, '0', '1')
-    print(g.edges(data=True))"""
 
 
 if __name__ == '__main__':
