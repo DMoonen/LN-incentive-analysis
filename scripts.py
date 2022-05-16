@@ -72,7 +72,8 @@ def add_edge(graph, node1, node2, weight, needs_optimization):
 :returns: The graph from which an edge has been removed.
 """
 def remove_edge(graph, node1, node2):
-    graph = graph.remove_edge(node1, node2)
+    graph.remove_edge(node1, node2)
+    graph.remove_edge(node2, node1)
     return graph
 
 
